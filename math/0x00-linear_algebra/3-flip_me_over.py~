@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"get transpose"
+
+
+def matrix_transpose(matrix):
+    "fun fun function"
+    mat=[]
+    for j in range(len(matrix[0])):
+        for i in matrix:
+            mat.append(i[j])
+    return mat
