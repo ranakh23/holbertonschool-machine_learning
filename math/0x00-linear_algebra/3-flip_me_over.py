@@ -4,9 +4,9 @@
 
 def matrix_transpose(matrix):
     "fun fun function"
-    mat=[]
+    mat = []
     for j in range(len(matrix[0])):
-        col=[]
+        col = []
         for i in matrix:
             col.append(i[j])
         mat.append(col)
