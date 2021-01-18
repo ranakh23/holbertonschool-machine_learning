@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 """Calculate sensitivity of a confusion matrix"""
 
 
