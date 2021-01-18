@@ -1,23 +1,12 @@
 #!/usr/bin/env python3
-"""
-Calculates the sensitivity for each class in a confusion matrix
-"""
+#!/usr/bin/env python3
+"""Calculate sensitivity of a confusion matrix"""
+
+
 import numpy as np
 
 
 def sensitivity(confusion):
-    """
-    Returns: a numpy.ndarray of shape (classes,) 
-    containing the sensitivity of each class
-    sensitivity = TP/actual_yes
-    precision = TP/predicted_yes
-    specifisity = TN/actual_no 
-    """
-    l = len(confusion)
-    sensitivity = []
-    i = 0
-    while (i < l):
-        for row in confusion:
-            sensitivity.append(row[i] / sum(row))
-            i += 1
-    return sensitivity
+    """Calculate sensitivity of a confusion matrix"""
+    return np.asarray([confusion[row][row] / confusion[row].sum()
+                       for row in range(confusion.shape[0])])
