@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
+
 """cost"""
-
-
 import tensorflow as tf
 
 
