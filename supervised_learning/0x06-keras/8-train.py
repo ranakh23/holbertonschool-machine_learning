@@ -1,27 +1,36 @@
 #!/usr/bin/env python3
-"""Train a keras model"""
-
-
+""" Save best model """
 import tensorflow.keras as K
 
 
 def train_model(network, data, labels, batch_size, epochs,
-                validation_data=None, early_stopping=False, patience=0,
-                learning_rate_decay=False, alpha=0.1, decay_rate=1,
+                validation_data=None, early_stopping=False,
                 save_best=False, filepath=None,
-                verbose=True, shuffle=False):
-    """Train a keras model"""
+                patience=0, learning_rate_decay=False,
+                alpha=0.1, decay_rate=1, verbose=True,
+                shuffle=False):
+    """
+    learning rate decay
+    """
+    def learning_rate(epoch):
+        """ updates the learning rate using inverse time decay """
+        return alpha / (1 + decay_rate * epoch)
+
     callbacks = []
-    if early_stopping and validation_data:
-        callbacks.append(K.callbacks.EarlyStopping(patience=patience))
     if learning_rate_decay and validation_data:
-        def __schedule(epoch):
-            """Scale the learning rate based on epoch"""
-            return alpha * 1 / (epoch * decay_rate + 1)
-        callbacks.append(K.callbacks.LearningRateScheduler(__schedule, 1))
+        decay = K.callbacks.LearningRateScheduler(learning_rate, 1)
+        callbacks.append(decay)
+    if early_stopping and validation_data:
+        early_stop = K.callbacks.EarlyStopping(patience=patience)
+        callbacks.append(early_stop)
     if save_best:
-        callbacks.append(K.callbacks.ModelCheckpoint(filepath))
-    return network.fit(data, labels, batch_size=batch_size, epochs=epochs,
-                       shuffle=shuffle, verbose=verbose,
-                       validation_data=validation_data,
-                       callbacks=callbacks)
+        best = K.callbacks.ModelCheckpoint(filepath, save_best_only=True)
+        callbacks.append(best)
+    history = network.fit(data, labels,
+                          epochs=epochs,
+                          batch_size=batch_size,
+                          shuffle=shuffle,
+                          verbose=verbose,
+                          validation_data=validation_data,
+                          callbacks=callbacks)
+    return history
