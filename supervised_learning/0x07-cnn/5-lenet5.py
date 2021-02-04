@@ -3,13 +3,13 @@
 import tensorflow.keras as K
 
 
-def lenet5(x):
+def lenet5(X):
     """ builds modified version of LeNet-5 architecture using keras """
     conv_lay1 = K.layers.Conv2D(filters=6,
                                 kernel_size=(5, 5),
                                 padding='same',
                                 activation='relu',
-                                kernel_initializer='he_normal')(x)
+                                kernel_initializer='he_normal')(X)
     pool_lay1 = K.layers.MaxPooling2D(pool_size=(2, 2),
                                       strides=(2, 2))(conv_lay1)
     conv_lay2 = K.layers.Conv2D(filters=16,
