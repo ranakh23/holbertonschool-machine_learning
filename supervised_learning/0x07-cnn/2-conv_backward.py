@@ -1,39 +1,38 @@
 #!/usr/bin/env python3
-""" Back propagation in a convolutional layer with padding"""
+""" This module contains the function conv_backward. """
 import numpy as np
 
 
 def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
-    """ Back prop for NN layer"""
-    m, h_prev, w_prev, _ = A_prev.shape
-    _, h_new, w_new, _ = dZ.shape
-    kh, kw, c_prev, c_new = W.shape
+    """
+    Performs back propagation over a convolutional layer of a neural network.
+    """
+    A_sh = A_prev.shape
+    W_sh = W.shape
+    m, h_prev, w_prev, c_prev = A_sh
+    kh, kw, _, c_new = W_sh
     sh, sw = stride
-
-    if padding == "same":
-        ph = ((sh * h_prev) - sh + kh - h_prev) // 2
-        pw = ((sw * w_prev) - sw + kw - w_prev) // 2
+    _, h_new, w_new, _ = dZ.shape
+    if padding == 'same':
+        ph = int(((h_prev - 1) * sh - h_prev + kh) / 2) + 1
+        pw = int(((w_prev - 1) * sw - w_prev + kw) / 2) + 1
     else:
-        ph, pw = 0, 0
-
-    pad_img = np.pad(A_prev, ((0, 0), (ph, ph), (pw, pw), (0, 0)),
-                     mode='constant', constant_values=0)
+        ph = pw = 0
+    padded = np.pad(A_prev, ((0,), (ph,), (pw,), (0,)), mode='constant',
+                    constant_values=0)
     db = np.sum(dZ, axis=(0, 1, 2), keepdims=True)
-    dA = np.zeros(pad_img.shape)
-    dW = np.zeros(W.shape)
-
-    for img in range(m):
-        for row in range(h_new):
-            for col in range(w_new):
-                for ch in range(c_new):
-                    a = row * sh
-                    b = a + kh
-                    c = col * sw
-                    d = c + kw
-                    dA[img, a:b, c:d, :] += dZ[img, row, col, ch]\
-                        * W[:, :, :, ch]
-                    dW[:, :, :, ch] += pad_img[img, a:b, c:d, :]\
-                        * dZ[img, row, col, ch]
+    dA = np.zeros(padded.shape)
+    dW = np.zeros(W_sh)
+    for i in range(m):
+        for j in range(h_new):
+            for k in range(w_new):
+                x = j * sh
+                y = k * sw
+                for l in range(c_new):
+                    currZ = dZ[i, j, k, l]
+                    currP = padded[i, x: x + kh, y: y + kw, :]
+                    dA[i, x: x + kh, y: y + kw, :] += currZ * W[:, :, :, l]
+                    dW[:, :, :, l] += currP * currZ
     if padding == 'same':
         dA = dA[:, ph:-ph, pw:-pw, :]
     return dA, dW, db
