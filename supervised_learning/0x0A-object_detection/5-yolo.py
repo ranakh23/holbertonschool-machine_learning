@@ -9,12 +9,7 @@ import os
 
 
 class Yolo:
-    """A YOLO object detection class
-    model: the YOLO model
-    classes: the class labels for categorization
-    class_t: threshold for object detection in boxes for initial filter step
-    nms_t: the IoU threshold for non-max suppression
-    anchors: anchor boxes [height, width]"""
+    """A YOLO object detection class"""
     def __init__(self, model_path, classes_path,
                  class_t, nms_t, anchors):
         self.model = K.models.load_model(model_path)
@@ -25,15 +20,7 @@ class Yolo:
         self.anchors = anchors
 
     def process_outputs(self, outputs, image_size):
-        """
-        Process Darknet outputs
-        outputs: outputs from the darknet model. Shape should be
-        (grid height, grid width, anchor box count,
-        4 box params + 1 confidence + classes)
-        image_size: size of the image [height, width]
-        returns
-        boxes: the boundary boxes
-        """
+        """Process Darknet outputs"""
         boxes = [output[:, :, :, 0:4] for output in outputs]
         for oidx, output in enumerate(boxes):
             for y in range(output.shape[0]):
@@ -63,15 +50,6 @@ class Yolo:
         """
         Filter box outputs into more compact forms and remove results under
         class threshold.
-        boxes: boundaries of object boxes.
-            to be transformed from (y cell, x cell, boxes, 4) to (?, 4)
-        box_confidences: confidence there is an object of interest
-            in the box
-        box_class_probs: class probabilities in box
-        returns ndarrays of values that pass the class identification threshold
-        1) ndarray of box boundaries in shape (?, 4)
-        2) ndarray of class predictions
-        3) ndarray of box scores (objectness * class confidence)
         """
         all_boxes = np.concatenate([boxs.reshape(-1, 4) for boxs in boxes])
         class_probs = np.concatenate([probs.reshape(-1,
@@ -90,13 +68,6 @@ class Yolo:
     def non_max_suppression(self, filtered_boxes, box_classes, box_scores):
         """
         Perform non-max suppression on the boundary boxes.
-        filtered_boxes: (?, 4) ndarray of boxes after thresholding
-        box_classes: the classes predicted by the boxes
-        box_scores: the scores for the boxes
-        returns non-max suppression filtered boxes
-        1) (?, 4) ndarray of bounding box predictions
-        2) (?) ndarray of class predictions for the boxes
-        3) (?) scores for the boxes
         """
         sort_order = np.lexsort((-box_scores, box_classes))
         box_scores = box_scores[sort_order]
