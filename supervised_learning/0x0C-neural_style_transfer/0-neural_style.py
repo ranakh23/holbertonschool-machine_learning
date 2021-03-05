@@ -93,4 +93,3 @@ class NST:
                                        clip_value_max=1)
 
         return scale_image
-
